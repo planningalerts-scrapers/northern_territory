@@ -1,3 +1,4 @@
+require 'scraperwiki'
 require 'rubygems'
 require 'mechanize'
 require 'date'
@@ -35,7 +36,7 @@ page.search('div.apps_application').each do |a|
     'date_scraped' => Date.today.to_s
   }
 
-  if ScraperWiki.select("* from swdata where `council_reference`='#{record['council_reference']}'").empty? 
+  if ScraperWiki.select("* from data where `council_reference`='#{record['council_reference']}'").empty? 
     ScraperWiki.save_sqlite(['council_reference'], record)
   else
     puts "Skipping already saved record " + record['council_reference']
