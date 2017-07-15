@@ -15,7 +15,7 @@ page.search('div.apps_application').each do |a|
   next if a.at('div.app_address').nil?  # No addresses on this DA
 
   address = a.at('div.app_address').at('p').inner_html.split('<br>')
-  council_reference = a.at('div.app_map').inner_html.match(/\d{8}/).to_s
+  council_reference = a.at('div.app_map').inner_html.match(/\d{9}/).to_s
 
   a.search('h6').each do |h|
     case h.inner_text
