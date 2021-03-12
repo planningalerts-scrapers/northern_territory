@@ -2,6 +2,7 @@ require 'scraperwiki'
 require 'rubygems'
 require 'mechanize'
 require 'date'
+require 'json'
 
 agent = Mechanize.new do |a|
   a.verify_mode = OpenSSL::SSL::VERIFY_NONE
