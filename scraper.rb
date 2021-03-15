@@ -2,39 +2,34 @@ require 'scraperwiki'
 require 'rubygems'
 require 'mechanize'
 require 'date'
+require 'json'
 
 agent = Mechanize.new do |a|
   a.verify_mode = OpenSSL::SSL::VERIFY_NONE
 end
 
-url = 'https://www.ntlis.nt.gov.au/planning/lta.dar.list'
+url = 'https://www.ntlis.nt.gov.au/planning-notices-online/notices/json'
 
-page = agent.get(url)
-
-page.search('div.apps_application').each do |a|
-  next if a.at('div.app_address').nil?  # No addresses on this DA
-
-  address = a.at('div.app_address').at('p').inner_html.split('<br>')
-  council_reference = a.at('div.app_map').inner_html.match(/\d{9}/).to_s
-
-  a.search('h6').each do |h|
-    case h.inner_text
-    when "Description of Proposal:"
-      @description = h.next.inner_text
-    when "Exhibition ends at:"
-      @on_notice_to = Date.parse(h.next.inner_text).to_s
-    end
+data = JSON.parse(agent.get(url).content)['currentNotices']
+data.each do |row|
+  begin
+	  address = "#{row['parcelDetails'][0]['streetNumber']} #{row['parcelDetails'][0]['streetName']} #{row['parcelDetails'][0]['suburb']}, NT"
+  rescue
+	  next
+	  # No addresses on this DA
   end
-
+  council_reference = row['applicationNumber']
+  description = row['purpose']
+  on_notice_to = row['exhibition']['formattedFinishDate']
+  
   record = {
-    'address' => "#{address[1].strip}, #{address[2].strip}, NT",
-    'description' => @description,
-    'on_notice_to' => @on_notice_to,
+    'address' => address,
+    'description' => description,
+    'on_notice_to' => on_notice_to,
     'council_reference' => council_reference,
     'info_url' => "https://www.ntlis.nt.gov.au/planningPopup/lta.dar.view/#{council_reference}",
     'comment_url' => "https://www.ntlis.nt.gov.au/planningPopup/lta.dar.submitOpinion/#{council_reference}",
     'date_scraped' => Date.today.to_s
   }
-
   ScraperWiki.save_sqlite(['council_reference'], record)
 end
