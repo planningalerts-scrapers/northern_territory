@@ -27,7 +27,7 @@ data.each do |row|
     'description' => description,
     'on_notice_to' => on_notice_to,
     'council_reference' => council_reference,
-    'info_url' => "https://www.ntlis.nt.gov.au/planningPopup/lta.dar.view/#{council_reference}",
+    'info_url' => "https://www.ntlis.nt.gov.au/planning-notices-online/notices#/index",
     'date_scraped' => Date.today.to_s
   }
   ScraperWiki.save_sqlite(['council_reference'], record)
